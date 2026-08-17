@@ -30,8 +30,34 @@ const create = async (req, res) => {
     }
 }
 
+const show = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        const application = user.applications.id(req.params.appId) 
+        res.render('applications/show.ejs', { application });
+    } catch (error) {
+        res.redirect('/')
+    }
+}
+
+const deleteApp = async (req, res) => {
+    try {
+       const user = await User.findById(req.params.id);
+        user.applications.pull(req.params.appId);
+
+        await user.save();
+        res.redirect(`/users/${user._id}/applications`); 
+    } catch (error) {
+        console.log(error);
+        res.redirect('/');
+    }
+    
+}
+
 module.exports = {
     index,
     newApp,
     create,
+    show,
+    deleteApp,
 };
