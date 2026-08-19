@@ -54,10 +54,43 @@ const deleteApp = async (req, res) => {
     
 }
 
+const edit = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        const application = user.applications.id(req.params.appId);
+
+        res.render('applications/edit', {application});
+    } catch (error) {
+        console.log(error);
+        res.redirect('/');
+    }
+}
+
+// controllers/applications.js`
+
+const update = async (req, res) => {
+    try {
+        const currentUser = await User.findById(req.session.user._id);
+        const application = currentUser.applications.id(req.params.applicationId);
+        // Use the Mongoose .set() method
+        // this method updates the current application to reflect the new form
+        // data on `req.body`
+        application.set(req.body);
+        await currentUser.save();
+        res.redirect(
+            `/users/${currentUser._id}/applications/${req.params.applicationId}`
+        );
+    } catch (error) {
+        console.log(error);
+        res.redirect('/');
+    }
+};
+
 module.exports = {
     index,
     newApp,
     create,
     show,
     deleteApp,
+    edit,
 };

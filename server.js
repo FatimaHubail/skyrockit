@@ -2,6 +2,7 @@
 require('dotenv').config();
 require('./config/databse');
 
+
 const express = require('express');
 
 const app = express();
@@ -15,7 +16,7 @@ const isSignedIn = require('./middleware/isSignedIn');
 const addUserToViews = require('./middleware/addUserToViews');
 
 // CONTROLLERS
-const authCtrl = require('./controllers/authCtrl');
+const authRouter = require('./routes/authRouter');
 const applicationsCtrl = require('./controllers/applicationsCtrl');
 
 // Set the port from environment variable or default to 3000
@@ -46,23 +47,14 @@ app.get('/', async (req, res) => {
   res.render('index.ejs');
 });
 
-app.get('/auth/sign-up', authCtrl.signup);
-app.post('/auth/sign-up', authCtrl.register);
-app.get('/auth/sign-in', authCtrl.signin);
-app.post('/auth/sign-in', authCtrl.login);
+// Auth routes
+app.use('/auth', authRouter);
 
 // Customer middleware
 app.use(isSignedIn);
 
-// PRIVATE ROUTES
-app.get('/auth/sign-out', authCtrl.signout);
-
-// Applications
-app.get('/users/:id/applications', applicationsCtrl.index);
-app.get('/users/:id/applications/new', applicationsCtrl.newApp);
-app.post('/users/:id/applications/new', applicationsCtrl.create);
-app.get('/users/:id/applications/:appId', applicationsCtrl.show);
-app.delete('/users/:id/applications/:appId', applicationsCtrl.deleteApp);
+// Applications routes
+app.use('/users/:id/applications');
 
 app.listen(port, () => {
   console.log(`The express app is ready on port ${port}!`);
